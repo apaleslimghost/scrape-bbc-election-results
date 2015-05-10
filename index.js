@@ -1,14 +1,50 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var σ       = require('highland');
+var url     = require('url');
+var numeral = require('numeral');
 
-function getConstituencyLinks(body) {
-	var $ = cheerio.load(body);
+function bbc(p) {
+	return url.resolve('http://bbc.co.uk', p);
+}
+
+function getConstituencyLinks($) {
 	return $('.az-table__row a').map(function() {
-		return $(this).attr('href');
+		return bbc($(this).attr('href'));
 	}).get();
 }
 
-σ(request('http://www.bbc.co.uk/news/politics/constituencies'))
-.flatMap(getConstituencyLinks)
-.each(σ.log);
+function getConstituencyResults($) {
+	return $('.parties .party').map(function() {
+		var $t = $(this);
+		return {
+			party: $t.find('.party__name--long').text(),
+			candidate: $t.find('.party__result--candidate').text().replace(/, with candidate /, ''),
+			votes: numeral().unformat($t.find('.party__result--votes').text())
+		};
+	}).get();
+}
+
+function getConstituencyMeta($) {
+	return {
+		name: $('.constituency-title__title').text()
+	};
+}
+
+function ρ(path) {
+	return σ(request(bbc(path))).collect().invoke('join', ['']).map(cheerio.load);
+}
+
+function fetchConstituency(p) {
+	return ρ(p).map(function($) {
+		var meta = getConstituencyMeta($);
+		meta.results = getConstituencyResults($);
+		return meta;
+	});
+}
+
+function fetchLinks() {
+	return ρ('/news/politics/constituencies').flatMap(getConstituencyLinks);
+}
+
+fetchLinks().flatMap(fetchConstituency).each(σ.log);
