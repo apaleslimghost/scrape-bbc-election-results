@@ -36,19 +36,28 @@ function getConstituencyMeta(path, $) {
 }
 
 function ρ(path) {
-	return σ(request(bbc(path))).collect().invoke('join', ['']).map(cheerio.load);
+	return σ(request(path)).collect().invoke('join', ['']);
+}
+
+var loadBeeb = σ.compose(σ.map(cheerio.load), ρ, bbc);
+
+function fetchONS(id) {
+	return ρ('http://statistics.data.gov.uk/doc/statistical-geography/' + id + '.json').map(JSON.parse);
 }
 
 function fetchConstituency(p) {
-	return ρ(p).map(function($) {
+	return loadBeeb(p).flatMap(function($) {
 		var meta = getConstituencyMeta(p, $);
 		meta.results = getConstituencyResults($);
-		return meta;
+		return fetchONS(meta.id).map(function(ons) {
+			meta.ons = ons;
+			return meta
+		});
 	});
 }
 
 function fetchLinks() {
-	return ρ('/news/politics/constituencies').flatMap(getConstituencyLinks);
+	return loadBeeb('/news/politics/constituencies').flatMap(getConstituencyLinks);
 }
 
 fetchLinks()
