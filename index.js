@@ -4,6 +4,7 @@ var σ       = require('highland');
 var url     = require('url');
 var numeral = require('numeral');
 var JSONΣ   = require('JSONStream');
+var Prog    = require('progress');
 
 function bbc(p) {
 	return url.resolve('http://www.bbc.co.uk', p);
@@ -68,7 +69,10 @@ function fetchLinks() {
 	return loadBeeb('/news/politics/constituencies').flatMap(getConstituencyLinks);
 }
 
+var bar = new Prog(':current/:total [:bar] :etas', 650);
+
 fetchLinks()
 	.flatMap(fetchConstituency)
+	.tap(bar.tick.bind(bar))
 	.through(JSONΣ.stringify())
 	.pipe(process.stdout);
