@@ -49,9 +49,17 @@ function fetchConstituency(p) {
 	return loadBeeb(p).flatMap(function($) {
 		var meta = getConstituencyMeta(p, $);
 		meta.results = getConstituencyResults($);
-		return fetchONS(meta.id).map(function(ons) {
-			meta.ons = ons;
-			return meta
+		return fetchONS(meta.id).flatMap(function(ons) {
+			meta.ons = ons.result.primaryTopic;
+			if(ons.result.primaryTopic.parentcode) {
+				var parent = ons.result.primaryTopic.parentcode.match(/http:\/\/statistics.data.gov.uk\/id\/statistical-geography\/(\w+)/)[1];
+				return fetchONS(parent).map(function(parent) {
+					meta.parent = parent.result.primaryTopic;
+					return meta;
+				});
+			} else {
+				return σ([meta]);
+			}
 		});
 	});
 }
