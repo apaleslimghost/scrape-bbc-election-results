@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/quarterto/scrape-bbc-election-results",
   "dependencies": {
+    "JSONStream": "^1.0.3",
     "cheerio": "^0.19.0",
     "highland": "^2.5.0",
     "numeral": "^1.5.3",

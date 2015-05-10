@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var σ       = require('highland');
 var url     = require('url');
 var numeral = require('numeral');
+var JSONΣ   = require('JSONStream');
 
 function bbc(p) {
 	return url.resolve('http://bbc.co.uk', p);
@@ -27,7 +28,8 @@ function getConstituencyResults($) {
 
 function getConstituencyMeta($) {
 	return {
-		name: $('.constituency-title__title').text()
+		name: $('.constituency-title__title').text(),
+		turnout: parseFloat($('.results-turnout__percentage .results-turnout__value').text())
 	};
 }
 
@@ -47,4 +49,7 @@ function fetchLinks() {
 	return ρ('/news/politics/constituencies').flatMap(getConstituencyLinks);
 }
 
-fetchLinks().flatMap(fetchConstituency).each(σ.log);
+fetchLinks()
+	.flatMap(fetchConstituency)
+	.through(JSONΣ.stringify())
+	.pipe(process.stdout);
