@@ -6,7 +6,7 @@ var numeral = require('numeral');
 var JSONΣ   = require('JSONStream');
 
 function bbc(p) {
-	return url.resolve('http://bbc.co.uk', p);
+	return url.resolve('http://www.bbc.co.uk', p);
 }
 
 function getConstituencyLinks($) {
@@ -21,15 +21,17 @@ function getConstituencyResults($) {
 		return {
 			party: $t.find('.party__name--long').text(),
 			candidate: $t.find('.party__result--candidate').text().replace(/, with candidate /, ''),
-			votes: numeral().unformat($t.find('.party__result--votes').text())
+			votes: numeral().unformat($t.find('.party__result--votes').text()),
+			swing: parseFloat($t.find('.party__result--votesnet .pos, .party__result--votesnet .neg').text())
 		};
 	}).get();
 }
 
-function getConstituencyMeta($) {
+function getConstituencyMeta(path, $) {
 	return {
 		name: $('.constituency-title__title').text(),
-		turnout: parseFloat($('.results-turnout__percentage .results-turnout__value').text())
+		turnout: parseFloat($('.results-turnout__percentage .results-turnout__value').text()),
+		id: path.match(/http:\/\/www\.bbc\.co\.uk\/news\/politics\/constituencies\/(\w+)/)[1]
 	};
 }
 
@@ -39,7 +41,7 @@ function ρ(path) {
 
 function fetchConstituency(p) {
 	return ρ(p).map(function($) {
-		var meta = getConstituencyMeta($);
+		var meta = getConstituencyMeta(p, $);
 		meta.results = getConstituencyResults($);
 		return meta;
 	});
