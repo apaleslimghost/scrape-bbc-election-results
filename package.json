@@ -1,0 +1,28 @@
+{
+  "name": "scrape-bbc-election-results",
+  "version": "1.0.0",
+  "description": "Scrape the BBC for election results",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/quarterto/scrape-bbc-election-results.git"
+  },
+  "keywords": [
+    "scrape",
+    "election"
+  ],
+  "author": "Matt Brennan <matt@153.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/quarterto/scrape-bbc-election-results/issues"
+  },
+  "homepage": "https://github.com/quarterto/scrape-bbc-election-results",
+  "dependencies": {
+    "cheerio": "^0.19.0",
+    "highland": "^2.5.0",
+    "request": "^2.55.0"
+  }
+}
