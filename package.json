@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Scrape the BBC for election results",
   "main": "index.js",
+  "bin": {
+    "scrape-bbc-election-results": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
